@@ -1,14 +1,13 @@
 package credhub
 
 import (
-	"io/ioutil"
 	"net"
 	"net/url"
 	"os"
 	"strings"
 	"sync"
 
-	"github.com/cloudfoundry/socks5-proxy"
+	proxy "github.com/cloudfoundry/socks5-proxy"
 	goproxy "golang.org/x/net/proxy"
 )
 
@@ -53,7 +52,7 @@ func SOCKS5DialFuncFromEnvironment(origDialer DialFunc, socks5Proxy ProxyDialer)
 			return origDialer
 		}
 
-		proxySSHKey, err := ioutil.ReadFile(proxySSHKeyPath[0])
+		proxySSHKey, err := os.ReadFile(proxySSHKeyPath[0])
 		if err != nil {
 			return origDialer
 		}
