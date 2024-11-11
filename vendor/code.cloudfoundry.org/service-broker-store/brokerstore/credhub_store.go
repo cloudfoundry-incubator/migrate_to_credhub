@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"code.cloudfoundry.org/credhub-cli/credhub/credentials"
-	"code.cloudfoundry.org/lager"
+	"code.cloudfoundry.org/lager/v3"
 	"code.cloudfoundry.org/service-broker-store/brokerstore/credhub_shims"
-	"github.com/pivotal-cf/brokerapi"
+	"github.com/pivotal-cf/brokerapi/v11/domain"
 )
 
 type CredhubStore struct {
@@ -82,20 +82,20 @@ func (s *CredhubStore) RetrieveInstanceDetails(id string) (ServiceInstance, erro
 	return serviceInstance, nil
 }
 
-func (s *CredhubStore) RetrieveBindingDetails(id string) (brokerapi.BindDetails, error) {
+func (s *CredhubStore) RetrieveBindingDetails(id string) (domain.BindDetails, error) {
 	logger := s.logger.Session("retrieve-binding-details")
 	logger.Info("start")
 	defer logger.Info("end")
 
 	creds, err := s.credhubShim.GetLatestJSON(s.namespaced(id))
 	if err != nil {
-		return brokerapi.BindDetails{}, err
+		return domain.BindDetails{}, err
 	}
 
-	var bindDetails brokerapi.BindDetails
+	var bindDetails domain.BindDetails
 	err = toStruct(creds, &bindDetails)
 	if err != nil {
-		return brokerapi.BindDetails{}, err
+		return domain.BindDetails{}, err
 	}
 
 	return bindDetails, nil
@@ -105,11 +105,11 @@ func (s *CredhubStore) RetrieveAllInstanceDetails() (map[string]ServiceInstance,
 	panic("Not Implemented")
 }
 
-func (s *CredhubStore) RetrieveAllBindingDetails() (map[string]brokerapi.BindDetails, error) {
+func (s *CredhubStore) RetrieveAllBindingDetails() (map[string]domain.BindDetails, error) {
 	panic("Not Implemented")
 }
 
-func (s *CredhubStore) CreateBindingDetails(id string, details brokerapi.BindDetails) error {
+func (s *CredhubStore) CreateBindingDetails(id string, details domain.BindDetails) error {
 	logger := s.logger.Session("create-binding-details")
 	logger.Info("start")
 	defer logger.Info("end")
@@ -144,7 +144,7 @@ func (s *CredhubStore) DeleteBindingDetails(id string) error {
 func (s *CredhubStore) IsInstanceConflict(id string, details ServiceInstance) bool {
 	return isInstanceConflict(s, id, details)
 }
-func (s *CredhubStore) IsBindingConflict(id string, details brokerapi.BindDetails) bool {
+func (s *CredhubStore) IsBindingConflict(id string, details domain.BindDetails) bool {
 	return isBindingConflict(s, id, details)
 }
 
