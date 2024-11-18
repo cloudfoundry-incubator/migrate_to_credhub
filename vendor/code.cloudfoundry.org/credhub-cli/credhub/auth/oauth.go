@@ -4,7 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"fmt"
+	"io"
 	"net/http"
 	"strings"
 	"sync"
@@ -149,7 +150,7 @@ func (a *OAuthStrategy) requestToken() error {
 	}
 
 	if err != nil {
-		return errors.New("Your token has expired and could not be refreshed. Please log in again to continue.")
+		return fmt.Errorf(fmt.Sprintf("Error getting token. Your token may have expired and could not be refreshed. Please try logging in again. [%s]", err.Error()))
 	}
 
 	a.SetTokens(accessToken, refreshToken)
@@ -189,13 +190,13 @@ func tokenExpired(resp *http.Response) (bool, error) {
 	}
 
 	var errResp map[string]string
-	buf, err := ioutil.ReadAll(resp.Body)
+	buf, err := io.ReadAll(resp.Body)
 
 	if err != nil {
 		return false, err
 	}
 
-	resp.Body = ioutil.NopCloser(bytes.NewBuffer(buf))
+	resp.Body = io.NopCloser(bytes.NewBuffer(buf))
 
 	decoder := json.NewDecoder(bytes.NewBuffer(buf))
 	err = decoder.Decode(&errResp)
@@ -218,14 +219,14 @@ func cloneRequest(r *http.Request) (*http.Request, error) {
 	*r2 = *r
 
 	// deep copy the body
-	buf, err := ioutil.ReadAll(r.Body)
+	buf, err := io.ReadAll(r.Body)
 
 	if err != nil {
 		return nil, err
 	}
 
-	r.Body = ioutil.NopCloser(bytes.NewBuffer(buf))
-	r2.Body = ioutil.NopCloser(bytes.NewBuffer(buf))
+	r.Body = io.NopCloser(bytes.NewBuffer(buf))
+	r2.Body = io.NopCloser(bytes.NewBuffer(buf))
 
 	return r2, nil
 }
