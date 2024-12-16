@@ -2,7 +2,7 @@ package credhub
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -43,7 +43,6 @@ func (ch *CredHub) find(key, value string) ([]byte, error) {
 	}
 
 	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
 
-	return body, nil
+	return io.ReadAll(resp.Body)
 }
